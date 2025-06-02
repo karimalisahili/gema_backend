@@ -22,7 +22,14 @@ This is a Node.js backend project using TypeScript, Express, Drizzle ORM, and Po
 ## Database
 
 - Uses PostgreSQL with Drizzle ORM.
-- Configure your database connection in the code.
+- The default database name is `gemadb` (see `src/db.ts`).
+- The connection string is loaded from the `.env` file using the `DATABASE_URL` variable.
+- Example `.env`:
+  ```env
+  DATABASE_URL=postgres://postgres:postgres@localhost:5432/gemadb
+  ```
+  If not set, it defaults to `postgres://postgres:postgres@localhost:5432/gemadb`.
+- On server start, the app checks the database connection before listening for requests.
 
 ---
 
