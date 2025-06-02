@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Dev Server",
+      "type": "shell",
+      "command": "npx ts-node src/index.ts",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
