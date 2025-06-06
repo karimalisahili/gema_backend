@@ -13,7 +13,7 @@
   "dependencies": {
     "@types/dotenv": "^6.1.1",
     "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.44.1",
+    "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
     "pg": "^8.16.0"
   },
@@ -21,6 +21,7 @@
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.29",
     "@types/pg": "^8.15.4",
+    "drizzle-kit": "^0.31.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }

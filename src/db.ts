@@ -6,9 +6,7 @@ import { Pool } from "pg";
 
 // Configure your PostgreSQL connection
 const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgres://postgres:postgres@localhost:5432/gemadb",
+  connectionString: process.env.DATABASE_URL,
 });
 
 // Create Drizzle ORM instance
