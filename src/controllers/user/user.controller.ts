@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 export const getUsers = async (req: Request, res: Response) => {
-  res.json({ message: "Get all users" });
+  res.json({ message: "Get all pusers" });
 };
 
 export const getUserById = async (req: Request, res: Response) => {
