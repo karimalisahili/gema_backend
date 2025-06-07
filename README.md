@@ -10,7 +10,11 @@ This is a Node.js backend project using TypeScript, Express, Drizzle ORM, and Po
    ```
 2. To run the development server:
    ```sh
-   npx ts-node src/index.ts
+   npm run dev
+   ```
+3. To update the database schema with Drizzle:
+   ```sh
+   npm run pushdb
    ```
 
 ## Project Structure
@@ -23,6 +27,10 @@ This is a Node.js backend project using TypeScript, Express, Drizzle ORM, and Po
 
 - Uses PostgreSQL with Drizzle ORM.
 - The default database name is `gemadb` (see `src/db.ts`).
+- To update the database schema, use:
+  ```sh
+  npm run pushdb
+  ```
 - The connection string is loaded from the `.env` file using the `DATABASE_URL` variable.
 - Example `.env`:
   ```env
