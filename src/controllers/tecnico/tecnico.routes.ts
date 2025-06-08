@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTecnicoHandler } from "./user.controller";
+import { createTecnicoHandler } from "./tecnico.controller";
 
 const router = Router();
 

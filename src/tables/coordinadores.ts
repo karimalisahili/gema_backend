@@ -5,20 +5,20 @@ import {
   serial,
   pgEnum,
   foreignKey,
-} from "drizzle-orm/pg-core";
-import { usuarios } from "./usuarios";
+} from 'drizzle-orm/pg-core';
+import { usuarios } from './usuarios';
 
 export const coordinadores = pgTable(
-  "Coordinadores",
+  'Coordinadores',
   {
-    IdCoordinador: integer("IdCoordinador").primaryKey(),
-    Contraseña: varchar("Contraseña", { length: 255 }),
+    IdCoordinador: integer('IdCoordinador').primaryKey(),
+    Contraseña: varchar('Contraseña', { length: 255 }),
   },
-  (coordinadores) => ({
+  coordinadores => ({
     fk_usuario: foreignKey({
       columns: [coordinadores.IdCoordinador],
       foreignColumns: [usuarios.Id],
-      name: "coordinadores_id_fkey",
+      name: 'coordinadores_id_fkey',
     }),
   })
 );

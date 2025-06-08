@@ -5,19 +5,19 @@ import {
   serial,
   pgEnum,
   foreignKey,
-} from "drizzle-orm/pg-core";
-import { usuarios } from "./usuarios";
+} from 'drizzle-orm/pg-core';
+import { usuarios } from './usuarios';
 
 export const tecnicos = pgTable(
-  "Tecnicos",
+  'Tecnicos',
   {
-    IdTecnico: integer("IdTecnico").primaryKey()
+    IdTecnico: integer('IdTecnico').primaryKey(),
   },
-  (tecnicos) => ({
+  tecnicos => ({
     fk_usuario: foreignKey({
       columns: [tecnicos.IdTecnico],
       foreignColumns: [usuarios.Id],
-      name: "tecnicos_id_fkey",
+      name: 'tecnicos_id_fkey'
     }),
   })
 );
