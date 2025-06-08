@@ -5,6 +5,7 @@ import {
   serial,
   pgEnum,
   foreignKey,
+  text,
 } from 'drizzle-orm/pg-core';
 import { usuarios } from './usuarios';
 
@@ -12,7 +13,7 @@ export const coordinadores = pgTable(
   'Coordinadores',
   {
     IdCoordinador: integer('IdCoordinador').primaryKey(),
-    Contraseña: varchar('Contraseña', { length: 255 }),
+    Contraseña: text('Contraseña').notNull(),
   },
   coordinadores => ({
     fk_usuario: foreignKey({

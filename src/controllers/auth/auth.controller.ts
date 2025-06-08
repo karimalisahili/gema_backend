@@ -6,7 +6,6 @@ export const loginHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log('Received request body:', req.body);
     const user = await login(req.body);
     res.status(201).json({
       data: user,
