@@ -11,8 +11,7 @@ import { usuarios } from "./usuarios";
 export const tecnicos = pgTable(
   "Tecnicos",
   {
-    IdTecnico: integer("IdTecnico").primaryKey(),
-    Contraseña: varchar("Contraseña", { length: 255 }),
+    IdTecnico: integer("IdTecnico").primaryKey()
   },
   (tecnicos) => ({
     fk_usuario: foreignKey({
