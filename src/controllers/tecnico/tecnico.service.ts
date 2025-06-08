@@ -10,7 +10,7 @@ export const createTecnico = async ({
   try {
     // Validate input
     if (!Nombre || !Correo) {
-      throw new Error("Nombre, Email y Tipo son campos obligatorios");
+      throw new Error("Nombre y Correo son campos obligatorios");
     }
 
     // Insert into usuarios table
