@@ -12,8 +12,6 @@ const initDB = async () => {
   console.log('Starting database initialization...');
 
   // Clean usuarios table
-  await db.delete(coordinadores);
-  await db.delete(tecnicos);
   await db.delete(usuarios);
 
   const plainPassword = '123456';

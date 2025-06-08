@@ -11,13 +11,9 @@ import { usuarios } from './usuarios';
 export const tecnicos = pgTable(
   'Tecnicos',
   {
-    IdTecnico: integer('IdTecnico').primaryKey(),
+    IdTecnico: integer('IdTecnico').references(() => usuarios.Id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }).primaryKey(),
   },
-  tecnicos => ({
-    fk_usuario: foreignKey({
-      columns: [tecnicos.IdTecnico],
-      foreignColumns: [usuarios.Id],
-      name: 'tecnicos_id_fkey'
-    }),
-  })
 );
