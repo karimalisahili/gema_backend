@@ -1,0 +1,18 @@
+import { pgTable, integer } from 'drizzle-orm/pg-core';
+import { tecnico } from './tecnico';
+import { grupoDeTrabajo } from './grupoDeTrabajo';
+
+export const trabajaEnGrupo = pgTable(
+  'TrabajaEnGrupo',
+  {
+    tecnicoId: integer('tecnicoId')
+      .references(() => tecnico.id, { onDelete: 'cascade' })
+      .notNull(),
+    grupoDeTrabajoId: integer('grupoDeTrabajoId')
+      .references(() => grupoDeTrabajo.id, { onDelete: 'cascade' })
+      .notNull(),
+  },
+  table => ({
+    pk: [table.tecnicoId, table.grupoDeTrabajoId],
+  })
+);
