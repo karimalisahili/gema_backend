@@ -1,44 +1,49 @@
 # Gema Backend
 
-This is a Node.js backend project using TypeScript, Express, Drizzle ORM, and PostgreSQL.
+Este es un proyecto backend en Node.js usando TypeScript, Express, Drizzle ORM y PostgreSQL.
 
-## Getting Started
+## Comenzando
 
-1. Install dependencies:
+1. Instala las dependencias:
    ```sh
    npm install
    ```
-2. To run the development server:
+2. Para iniciar el servidor en modo desarrollo:
    ```sh
    npm run dev
    ```
-3. To update the database schema with Drizzle:
+3. Para actualizar el esquema de la base de datos con Drizzle:
    ```sh
    npm run pushdb
    ```
 
-## Project Structure
+## Estructura del Proyecto
 
-- `src/` - Source code directory
-- `tsconfig.json` - TypeScript configuration
-- `.github/copilot-instructions.md` - Copilot custom instructions
+- `src/` - Código fuente
+- `tsconfig.json` - Configuración de TypeScript
+- `.github/copilot-instructions.md` - Instrucciones personalizadas para Copilot
 
-## Database
+## Base de Datos
 
-- Uses PostgreSQL with Drizzle ORM.
-- The default database name is `gemadb` (see `src/db.ts`).
-- To update the database schema, use:
-  ```sh
-  npm run pushdb
-  ```
-- The connection string is loaded from the `.env` file using the `DATABASE_URL` variable.
-- Example `.env`:
+- Usa PostgreSQL con Drizzle ORM.
+- El nombre de la base de datos por defecto es `gemadb` (ver `src/db.ts`).
+- La cadena de conexión se carga desde el archivo `.env` usando la variable `DATABASE_URL`.
+- Ejemplo de `.env`:
   ```env
   DATABASE_URL=postgres://postgres:postgres@localhost:5432/gemadb
   ```
-  If not set, it defaults to `postgres://postgres:postgres@localhost:5432/gemadb`.
-- On server start, the app checks the database connection before listening for requests.
+- Para actualizar el esquema de la base de datos:
+  ```sh
+  npm run pushdb
+  ```
+- Al iniciar el servidor, la app verifica la conexión a la base de datos antes de escuchar peticiones.
 
----
+## Inicialización de la base de datos
 
-Feel free to extend this README as your project grows.
+Antes de usar la API, ejecuta el comando `initdb` para crear el usuario master en la base de datos. Este paso es necesario si quieres agregar el usuario master desde el principio.
+
+```sh
+npm run initdb
+```
+
+
