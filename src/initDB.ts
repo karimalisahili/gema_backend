@@ -4,6 +4,7 @@ import { coordinadores } from './tables/coordinadores';
 import dotenv from 'dotenv';
 import { hashPassword, comparePassword } from './utils/password';
 import { tecnicos } from './tables/tecnicos';
+import { eq } from 'drizzle-orm';
 
 dotenv.config();
 
@@ -11,11 +12,9 @@ const initDB = async () => {
   console.log('Starting database initialization...');
 
   // Clean usuarios table
-  await db.delete(coordinadores);
-  await db.delete(tecnicos);
   await db.delete(usuarios);
 
-  const plainPassword = process.env.SEED_PASSWORD || '123456';
+  const plainPassword = '123456';
   const nombre = 'Coordinador Principal';
   const correo = 'coordinador@gema.com';
   const tipo = 'COORDINADOR';
@@ -25,10 +24,6 @@ const initDB = async () => {
 
     // Comprobar que comparePassword funciona correctamente
     const isMatch = await comparePassword(plainPassword, contrasenaHash);
-    console.log(
-      '¿comparePassword retorna verdadero con la misma clave?:',
-      isMatch
-    );
 
     await db.transaction(async tx => {
       // Insertar usuario (sin contraseña)

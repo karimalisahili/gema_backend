@@ -35,25 +35,17 @@ export const login = async ({ Correo, Contraseña }: authParams) => {
       Coordinadores.Contraseña
     );
 
-    console.log('Contraseña válida:', isPasswordValid);
-
     if (!isPasswordValid) {
       throw new Error('Contraseña incorrecta');
     }
-
-    // Fusionar los campos de usuario y coordinador en un solo objeto
-    const coordinadorCompleto = {
-      ...Usuarios,
-      ...Coordinadores,
-    };
 
     // Genera el token
     const token = jwt.sign(
       { userId: Coordinadores.IdCoordinador, tipo: Usuarios?.Tipo },
       process.env.JWT_SECRET!,
-      { expiresIn: '1h' }
+      { expiresIn: '15d' }
     );
-    return { token, coordinador: coordinadorCompleto };
+    return { token, coordinador: Usuarios };
   } catch (error) {
     console.error('Error autenticando coordinador:', error);
     throw new Error('Error al autenticar coordinador');
