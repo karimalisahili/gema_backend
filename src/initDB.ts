@@ -1,10 +1,7 @@
 import { db } from './db';
 import { usuarios } from './tables/usuarios';
-import { coordinadores } from './tables/coordinadores';
 import dotenv from 'dotenv';
 import { hashPassword, comparePassword } from './utils/password';
-import { tecnicos } from './tables/tecnicos';
-import { eq } from 'drizzle-orm';
 
 dotenv.config();
 
@@ -33,22 +30,17 @@ const initDB = async () => {
           Nombre: nombre,
           Correo: correo,
           Tipo: tipo,
+          Contraseña: contrasenaHash,
         })
         .returning({ Id: usuarios.Id });
 
       const usuarioId = inserted[0]?.Id;
       if (!usuarioId) throw new Error('No se pudo obtener el Id del usuario');
-
-      // Insertar coordinador con contraseña y FK al usuario
-      await tx.insert(coordinadores).values({
-        IdCoordinador: usuarioId,
-        Contraseña: contrasenaHash,
-      });
     });
 
     console.log('Usuario coordinador agregado correctamente.');
   } catch (error) {
-    console.error('Error al agregar usuario coordinador:', error);
+    console.error('Error al agregar usuario:', error);
   }
 };
 
