@@ -12,7 +12,12 @@ if (process.env.NODE_ENV === "development") {
   app.use(cors());
 } else {
   // En producción, solo permite solicitudes desde la URL autorizada
-  app.use(cors({ origin: "https://tu-url-de-produccion.com" }));
+  const productionUrl = process.env.PRODUCTION_URL;
+  if (!productionUrl) {
+    console.error("Error: PRODUCTION_URL environment variable is not defined.");
+    process.exit(1);
+  }
+  app.use(cors({ origin: productionUrl }));
 }
 
 app.use(express.json());
