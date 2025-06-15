@@ -7,8 +7,7 @@
     "start": "ts-node src/index.ts",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "pushdb": "npx drizzle-kit push",
-    "initDB": "ts-node src/initDB.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "initDB": "ts-node src/initDB.ts"
   },
   "keywords": [],
   "author": "",
