@@ -1,4 +1,4 @@
-import { pgTable, integer } from 'drizzle-orm/pg-core';
+import { pgTable, integer, primaryKey } from 'drizzle-orm/pg-core';
 import { usuarios } from './usuarios';
 import { grupoDeTrabajo } from './grupoDeTrabajo';
 
@@ -12,7 +12,9 @@ export const trabajaEnGrupo = pgTable(
       .references(() => grupoDeTrabajo.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  table => ({
-    pk: [table.tecnicoId, table.grupoDeTrabajoId],
-  })
+  table => {
+    return {
+      pk: primaryKey({ columns: [table.tecnicoId, table.grupoDeTrabajoId] }),
+    };
+  }
 );
