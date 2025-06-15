@@ -1,5 +1,8 @@
 export type CreateUbicacionesTecnicasParams = {
   descripcion: string;
   abreviacion: string;
-  padreId?: number | null; // Optional for root nodes
+  padres?: Array<{ idPadre: number; esUbicacionFisica?: boolean }>;
 };
+
+export type UpdateUbicacionesTecnicasParams =
+  Partial<CreateUbicacionesTecnicasParams>;
