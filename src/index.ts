@@ -1,21 +1,27 @@
-import express from "express";
-import { db } from "./db";
-import routes from "./routes";
+import express from 'express';
+import { db } from './db';
+import routes from './routes';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-app.use("/", routes);
+
+// Ruta de prueba "Hola Mundo"
+app.get('/hola', (_req, res) => {
+  res.json({ mensaje: 'Hola mundo' });
+});
+
+app.use('/', routes);
 
 (async () => {
   try {
     // Try a simple query to check the connection
-    await db.execute("SELECT 1");
-    console.log("Connected to PostgreSQL via Drizzle ORM.");
+    await db.execute('SELECT 1');
+    console.log('Connected to PostgreSQL via Drizzle ORM.');
   } catch (error) {
-    console.error("Database connection failed:", error);
+    console.error('Database connection failed:', error);
     process.exit(1);
   }
 
