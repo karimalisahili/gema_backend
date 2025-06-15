@@ -1,8 +1,13 @@
 import { Router } from 'express';
-import { createGrupoDeTrabajoHandler } from './gruposDeTrabajo.controller';
+import {
+  createGrupoDeTrabajoHandler,
+  getGruposDeTrabajoByIdHandler,
+  getGruposDeTrabajoHandler,
+} from './gruposDeTrabajo.controller';
 
 const router = Router();
 
 router.post('/', createGrupoDeTrabajoHandler);
-
+router.get('/', getGruposDeTrabajoHandler);
+router.get('/:id', getGruposDeTrabajoByIdHandler);
 export default router;
