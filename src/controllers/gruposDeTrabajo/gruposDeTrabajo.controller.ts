@@ -5,6 +5,9 @@ import {
   getGruposDeTrabajo,
 } from './gruposDeTrabajo.service';
 import { json } from 'stream/consumers';
+import { updateGrupoDeTrabajo } from './gruposDeTrabajo.service';
+import { error } from 'console';
+import { db } from '../../db';
 
 export const createGrupoDeTrabajoHandler = async (
   req: Request,
@@ -68,5 +71,44 @@ export const getGruposDeTrabajoByIdHandler = async (
       error: 'Error al obtener los grupos de trabajo por id',
     });
     return;
+  }
+};
+
+export const updateGrupoDeTrabajoHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'El id debe ser un número válido' });
+      return;
+    }
+
+    const { codigo, nombre, idSupervisor } = req.body;
+    if (!codigo && !nombre && !idSupervisor === undefined) {
+      res.status(400).json({
+        error:
+          'Se requiere al menos un campo (codigo, nombre, idSupervisor) para actualizar',
+      });
+      return;
+    }
+
+    const result = await updateGrupoDeTrabajo(id, req.body);
+
+    if (result === null) {
+      res.status(400).json({
+        error: 'Grupo de trabajo no encontrado',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: result.message,
+      data: result.grupo,
+    });
+  } catch (error) {
+    console.error('Error in updateGrupoDeTrabajoHandler: ', error);
+    res.status(500).json({ error: 'Error al actualizar el grupo' });
   }
 };

@@ -62,3 +62,40 @@ export const getGrupoDeTrabajoById = async (id: number) => {
     throw new Error('No se pudo obtener el grupo de trabajo.');
   }
 };
+
+/**
+ * Actualizar un grupo de trabajo existente.
+ * @param id - El id del grupo de trabajo a actualizar
+ * @params params - Los datos para actualizar el grupo de trabajo
+ * @author AndresChacon00
+ */
+export const updateGrupoDeTrabajo = async (
+  id: number,
+  params: Partial<createGrupoDeTrabajoParams>
+) => {
+  try {
+    const updated = await db
+      .update(grupoDeTrabajo)
+      .set({
+        codigo: params.codigo,
+        nombre: params.nombre,
+        supervisorId: params.idSupervisor,
+      })
+      .where(eq(grupoDeTrabajo.id, id))
+      .returning();
+
+    if (!updated.length) {
+      throw new Error('Error al actualizar grupo de trabajo');
+    }
+    return {
+      message: 'Grupo de trabajo actualizado correctamente',
+      grupo: updated[0],
+    };
+  } catch (error) {
+    console.error(
+      `Error al actualizar un grupo de trabajo con ID ${id} :`,
+      error
+    );
+    throw new Error('Error al actualizar el grupo de trabajo');
+  }
+};
