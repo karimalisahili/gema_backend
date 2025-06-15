@@ -12,7 +12,7 @@ export const createGrupoDeTrabajo = async (
       .values({
         codigo: params.codigo,
         nombre: params.nombre,
-        supervisorId: params.idSupervisor,
+        supervisorId: params.supervisorId,
       })
       .returning();
 
@@ -79,7 +79,7 @@ export const updateGrupoDeTrabajo = async (
       .set({
         codigo: params.codigo,
         nombre: params.nombre,
-        supervisorId: params.idSupervisor,
+        supervisorId: params.supervisorId,
       })
       .where(eq(grupoDeTrabajo.id, id))
       .returning();
@@ -97,5 +97,31 @@ export const updateGrupoDeTrabajo = async (
       error
     );
     throw new Error('Error al actualizar el grupo de trabajo');
+  }
+};
+
+/**
+ * Eliminar un grupo de trabajo por su id
+ * @param id - El id del grupo de trabajo a eliminar
+ * @author AndresChacon00
+ */
+export const deleteGrupoDeTrabajo = async (id: number) => {
+  try {
+    const deleted = await db
+      .delete(grupoDeTrabajo)
+      .where(eq(grupoDeTrabajo.id, id))
+      .returning();
+
+    if (!deleted.length) {
+      throw new Error('No se encontró al grupo');
+    }
+
+    return {
+      message: 'Grupo de trabajo eliminado correctamente',
+      grupo: deleted[0],
+    };
+  } catch (error) {
+    console.error(`Error eliminando grupo de trabajo con ID ${id}: `, error);
+    throw new Error('Error al eliminar el grupo de trabajo');
   }
 };

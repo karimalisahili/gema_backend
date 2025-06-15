@@ -5,7 +5,10 @@ import {
   getGruposDeTrabajo,
 } from './gruposDeTrabajo.service';
 import { json } from 'stream/consumers';
-import { updateGrupoDeTrabajo } from './gruposDeTrabajo.service';
+import {
+  updateGrupoDeTrabajo,
+  deleteGrupoDeTrabajo,
+} from './gruposDeTrabajo.service';
 import { error } from 'console';
 import { db } from '../../db';
 
@@ -110,5 +113,33 @@ export const updateGrupoDeTrabajoHandler = async (
   } catch (error) {
     console.error('Error in updateGrupoDeTrabajoHandler: ', error);
     res.status(500).json({ error: 'Error al actualizar el grupo' });
+  }
+};
+
+export const deleteGrupoDeTrabajoHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'El id debe ser un número válido' });
+      return;
+    }
+
+    const result = await deleteGrupoDeTrabajo(id);
+
+    if (result === null) {
+      res.status(404).json({ error: 'Grupo de trabajo no encontrado' });
+      return;
+    }
+
+    res.status(200).json({
+      message: result.message,
+      data: result.grupo,
+    });
+  } catch (error) {
+    console.error('Error in deleteGrupoDeTrabajoHandler: ', error);
+    res.status(500).json({ error: 'Error al eliminar grupo de trabajo' });
   }
 };
