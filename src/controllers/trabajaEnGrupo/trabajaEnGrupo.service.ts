@@ -19,7 +19,7 @@ export const createTrabajaEnGrupo = async (
     }
 
     return {
-      message: 'Grupo de trabajo creado correctamente',
+      message: 'Trabajados añadido al grupo de trabajo',
       trabajaEnGrupo: inserted[0],
     };
   } catch (error) {
