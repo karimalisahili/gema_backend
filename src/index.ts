@@ -1,16 +1,25 @@
 import express from "express";
+import cors from "cors";
 import { db } from "./db";
 import routes from "./routes";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Configuración condicional de CORS
+if (process.env.NODE_ENV === "development") {
+  // En desarrollo, permite solicitudes desde cualquier origen
+  app.use(cors());
+} else {
+  // En producción, solo permite solicitudes desde la URL autorizada
+  app.use(cors({ origin: "https://tu-url-de-produccion.com" }));
+}
+
 app.use(express.json());
 app.use("/", routes);
 
 (async () => {
   try {
-    // Try a simple query to check the connection
     await db.execute("SELECT 1");
     console.log("Connected to PostgreSQL via Drizzle ORM.");
   } catch (error) {
