@@ -40,10 +40,8 @@ Este es un proyecto backend en Node.js usando TypeScript, Express, Drizzle ORM y
 
 ## Inicialización de la base de datos
 
-Antes de usar la API, ejecuta el comando `initdb` para crear el usuario master en la base de datos. Este paso es necesario si quieres agregar el usuario master desde el principio.
+Antes de usar la API, ejecuta el comando `initDB` para crear el usuario master en la base de datos. Este paso es necesario si quieres agregar el usuario master desde el principio.
 
 ```sh
-npm run initdb
+npm run initDB
 ```
-
-

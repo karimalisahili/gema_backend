@@ -20,15 +20,22 @@ if (process.env.NODE_ENV === "development") {
   app.use(cors({ origin: productionUrl }));
 }
 
+// Middleware to parse JSON bodies
 app.use(express.json());
-app.use("/", routes);
+
+// Ruta de prueba "Hola Mundo"
+app.get('/hola', (_req, res) => {
+  res.json({ mensaje: 'Hola mundo' });
+});
+
+app.use('/', routes);
 
 (async () => {
   try {
     await db.execute("SELECT 1");
     console.log("Connected to PostgreSQL via Drizzle ORM.");
   } catch (error) {
-    console.error("Database connection failed:", error);
+    console.error('Database connection failed:', error);
     process.exit(1);
   }
 
