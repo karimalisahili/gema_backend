@@ -13,7 +13,7 @@ const initDB = async () => {
 
   const plainPassword = '123456';
   const nombre = 'Coordinador Principal';
-  const correo = 'coordinador@gema.com';
+  const correo = 'coordinador@ucab.edu.ve';
   const tipo = 'COORDINADOR';
 
   try {
