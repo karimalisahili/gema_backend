@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/src/index.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "pushdb": "npx drizzle-kit push",
     "initDB": "ts-node src/initDB.ts"
