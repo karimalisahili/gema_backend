@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const gruposDeTrabajo_controller_1 = require("./gruposDeTrabajo.controller");
+const router = (0, express_1.Router)();
+router.post('/', gruposDeTrabajo_controller_1.createGrupoDeTrabajoHandler);
+router.get('/', gruposDeTrabajo_controller_1.getGruposDeTrabajoHandler);
+router.get('/:id', gruposDeTrabajo_controller_1.getGruposDeTrabajoByIdHandler);
+router.put('/:id', gruposDeTrabajo_controller_1.updateGrupoDeTrabajoHandler);
+router.delete('/:id', gruposDeTrabajo_controller_1.deleteGrupoDeTrabajoHandler);
+exports.default = router;

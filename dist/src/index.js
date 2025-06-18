@@ -13,10 +13,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const db_1 = require("./db");
 const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
+// Configuración condicional de CORS
+if (process.env.NODE_ENV === "development") {
+    // En desarrollo, permite solicitudes desde cualquier origen
+    app.use((0, cors_1.default)());
+}
+else {
+    // En producción, solo permite solicitudes desde la URL autorizada
+    const productionUrl = process.env.PRODUCTION_URL;
+    if (!productionUrl) {
+        console.error("Error: PRODUCTION_URL environment variable is not defined.");
+        process.exit(1);
+    }
+    app.use((0, cors_1.default)({ origin: productionUrl }));
+}
 // Middleware to parse JSON bodies
 app.use(express_1.default.json());
 // Ruta de prueba "Hola Mundo"
@@ -26,9 +41,8 @@ app.get('/hola', (_req, res) => {
 app.use('/', routes_1.default);
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Try a simple query to check the connection
-        yield db_1.db.execute('SELECT 1');
-        console.log('Connected to PostgreSQL via Drizzle ORM.');
+        yield db_1.db.execute("SELECT 1");
+        console.log("Connected to PostgreSQL via Drizzle ORM.");
     }
     catch (error) {
         console.error('Database connection failed:', error);

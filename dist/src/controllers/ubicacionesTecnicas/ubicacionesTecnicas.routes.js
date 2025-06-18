@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ubicacionesTecnicas_controller_1 = require("./ubicacionesTecnicas.controller");
+const router = (0, express_1.Router)();
+router.get('/', ubicacionesTecnicas_controller_1.getUbicacionesTecnicasHandler);
+router.get('/:id', ubicacionesTecnicas_controller_1.getUbicacionTecnicaByIdHandler);
+router.post('/', ubicacionesTecnicas_controller_1.createUbicacionTecnicaHandler);
+router.put('/:id', ubicacionesTecnicas_controller_1.updateUbicacionTecnicaHandler);
+router.delete('/:id', ubicacionesTecnicas_controller_1.deleteUbicacionTecnicaHandler);
+exports.default = router;
