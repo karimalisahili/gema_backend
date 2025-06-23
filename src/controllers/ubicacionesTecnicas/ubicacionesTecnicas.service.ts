@@ -7,6 +7,17 @@ import {
 } from '../../types/ubicacionesTecnicas';
 import { eq, inArray } from 'drizzle-orm';
 
+/**
+ * Crea una nueva ubicación técnica.
+ * Endpoint: POST /ubicaciones-tecnicas
+ * Body:
+ *   - descripcion: string (requerido)
+ *   - abreviacion: string (requerido)
+ *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
+ *     - idPadre: ID del padre
+ *     - esUbicacionFisica: true si este padre es la ubicación física principal
+ * Descripción: Crea una ubicación técnica y la asocia a uno o varios padres.
+ */
 export const createUbicacionTecnica = async (
   params: CreateUbicacionesTecnicasParams
 ) => {
@@ -73,6 +84,17 @@ export const createUbicacionTecnica = async (
   }
 };
 
+/**
+ * Actualiza una ubicación técnica existente.
+ * Endpoint: PUT /ubicaciones-tecnicas/:id
+ * Params:
+ *   - idUbicacion: number (en la ruta)
+ * Body:
+ *   - descripcion: string (opcional)
+ *   - abreviacion: string (opcional)
+ *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
+ * Descripción: Actualiza los datos de una ubicación técnica. Si se envía el campo padres, se actualizan las relaciones de padres.
+ */
 export const updateUbicacionTecnica = async (
   idUbicacion: number,
   params: UpdateUbicacionesTecnicasParams
@@ -144,6 +166,13 @@ export const updateUbicacionTecnica = async (
   }
 };
 
+/**
+ * Elimina una ubicación técnica por su ID.
+ * Endpoint: DELETE /ubicaciones-tecnicas/:id
+ * Params:
+ *   - idUbicacion: number (en la ruta)
+ * Descripción: Elimina la ubicación técnica y sus relaciones con padres/hijos.
+ */
 export const deleteUbicacionTecnica = async (idUbicacion: number) => {
   try {
     await db.delete(incluyen).where(eq(incluyen.idHijo, idUbicacion));
@@ -164,6 +193,11 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
   }
 };
 
+/**
+ * Obtiene todas las ubicaciones técnicas.
+ * Endpoint: GET /ubicaciones-tecnicas
+ * Descripción: Devuelve un listado de todas las ubicaciones técnicas.
+ */
 export const getUbicacionesTecnicas = async () => {
   try {
     const ubicaciones = await db.select().from(ubicacionTecnica);
@@ -174,6 +208,13 @@ export const getUbicacionesTecnicas = async () => {
   }
 };
 
+/**
+ * Obtiene una ubicación técnica por su ID.
+ * Endpoint: GET /ubicaciones-tecnicas/:id
+ * Params:
+ *   - idUbicacion: number (en la ruta)
+ * Descripción: Devuelve la información de una ubicación técnica específica.
+ */
 export const getUbicacionTecnicaById = async (idUbicacion: number) => {
   try {
     const ubicacion = await db
