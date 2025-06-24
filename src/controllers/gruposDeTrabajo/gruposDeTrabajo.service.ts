@@ -26,7 +26,7 @@ export const createGrupoDeTrabajo = async (
     };
   } catch (error) {
     console.error('Error creating grupo de trabajo');
-    throw new Error('Error al crear el grupo de trabajo');
+    throw new Error('Error al crear el grupo de trabajo' + error);
   }
 };
 
