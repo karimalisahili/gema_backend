@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
   createTrabajaEnGrupo,
   deleteTrabajaEnGrupo,
+  getAllWorkersInGroup,
 } from './trabajaEnGrupo.service';
 import { trabajaEnGrupo } from '../../tables/trabajaEnGrupo';
 import { error } from 'console';
@@ -24,6 +25,21 @@ export const createTrabajaEnGrupoHandler = async (
     });
     return;
   }
+};
+
+export const getAllTrabajaEnGrupoHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const grupoDeTrabajoId = parseInt(req.params.grupoDeTrabajoId, 10);
+
+    const trabajaEnGrupos = await getAllWorkersInGroup(grupoDeTrabajoId);
+
+    res.status(200).json({
+      data: trabajaEnGrupos,
+    });
+  } catch (error) {}
 };
 
 export const deleteTrabajaEnGrupoHandler = async (

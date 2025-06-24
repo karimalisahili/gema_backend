@@ -3,6 +3,7 @@ import { trabajaEnGrupo } from '../../tables/trabajaEnGrupo';
 import { createTrabajaEnGrupoParams } from '../../types/trabajaEnGrupo';
 import { grupoDeTrabajo } from '../../tables/grupoDeTrabajo';
 import { and, eq } from 'drizzle-orm';
+import { usuarios } from '../../tables/usuarios';
 
 export const createTrabajaEnGrupo = async (
   params: createTrabajaEnGrupoParams
@@ -28,6 +29,23 @@ export const createTrabajaEnGrupo = async (
     console.error('Error adding worker to group');
     throw new Error('Error al añadir trabajador al grupo de trabajo');
   }
+};
+
+export const getAllWorkersInGroup = async (grupoDeTrabajoId: number) => {
+  try {
+    // Importa la tabla usuarios arriba: import { usuarios } from '../../tables/usuarios';
+    const usuariosResult = (
+      await db
+        .select({ usuario: usuarios })
+        .from(trabajaEnGrupo)
+        .leftJoin(usuarios, eq(trabajaEnGrupo.tecnicoId, usuarios.Id))
+        .where(eq(trabajaEnGrupo.grupoDeTrabajoId, grupoDeTrabajoId))
+    )
+      .map(row => row.usuario)
+      .filter(Boolean);
+
+    return usuariosResult;
+  } catch (error) {}
 };
 
 export const deleteTrabajaEnGrupo = async (
