@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import {
   createTrabajaEnGrupo,
   deleteTrabajaEnGrupo,
+  getAllWorkersInAllGroups,
+  getAllWorkersInGroup,
 } from './trabajaEnGrupo.service';
 import { trabajaEnGrupo } from '../../tables/trabajaEnGrupo';
 import { error } from 'console';
@@ -23,6 +25,36 @@ export const createTrabajaEnGrupoHandler = async (
       error: 'Error al añadir trabajador a grupo de trabajo',
     });
     return;
+  }
+};
+
+export const getAllTrabajaEnGrupoHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const grupoDeTrabajoId = parseInt(req.params.grupoDeTrabajoId, 10);
+
+    const trabajaEnGrupos = await getAllWorkersInGroup(grupoDeTrabajoId);
+
+    res.status(200).json({
+      data: trabajaEnGrupos,
+    });
+  } catch (error) {}
+};
+
+export const getAllTrabajaEnTodosLosGruposHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const data = await getAllWorkersInAllGroups();
+    res.status(200).json({ data });
+  } catch (error) {
+    console.error('Error in getAllTrabajaEnTodosLosGruposHandler:', error);
+    res.status(500).json({
+      error: 'Error al obtener todos los trabajadores en todos los grupos',
+    });
   }
 };
 
