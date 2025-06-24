@@ -5,7 +5,7 @@ import {
   CreateUbicacionesTecnicasParams,
   UpdateUbicacionesTecnicasParams,
 } from '../../types/ubicacionesTecnicas';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 
 /**
  * Crea una nueva ubicación técnica.
@@ -80,7 +80,12 @@ export const createUbicacionTecnica = async (
     };
   } catch (error) {
     console.error('Error creating ubicacion tecnica:', error);
-    throw new Error('Error al crear la ubicación técnica');
+    // Lanzar el error real junto con el mensaje personalizado
+    throw new Error(
+      `Error al crear la ubicación técnica: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
   }
 };
 
@@ -162,20 +167,40 @@ export const updateUbicacionTecnica = async (
     };
   } catch (error) {
     console.error('Error updating ubicacion tecnica:', error);
-    throw new Error('Error al actualizar la ubicación técnica');
+    throw new Error(
+      `Error al actualizar la ubicación técnica: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
   }
 };
 
 /**
- * Elimina una ubicación técnica por su ID.
+ * Elimina una ubicación técnica por su ID y elimina recursivamente todos los hijos donde este sea padre (sin importar esUbicacionFisica).
  * Endpoint: DELETE /ubicaciones-tecnicas/:id
  * Params:
  *   - idUbicacion: number (en la ruta)
- * Descripción: Elimina la ubicación técnica y sus relaciones con padres/hijos.
+ * Descripción: Elimina la ubicación técnica y, en cascada, todos los hijos cuya relación apunte a este padre.
  */
 export const deleteUbicacionTecnica = async (idUbicacion: number) => {
   try {
+    // Buscar todos los hijos donde este es padre (sin importar esUbicacionFisica)
+    const hijos = await db
+      .select({ idHijo: incluyen.idHijo })
+      .from(incluyen)
+      .where(eq(incluyen.idPadre, idUbicacion));
+
+    // Eliminar recursivamente los hijos
+    for (const hijo of hijos) {
+      await deleteUbicacionTecnica(hijo.idHijo);
+    }
+
+    // Eliminar relaciones en Incluyen donde este es hijo
     await db.delete(incluyen).where(eq(incluyen.idHijo, idUbicacion));
+    // Eliminar relaciones en Incluyen donde este es padre
+    await db.delete(incluyen).where(eq(incluyen.idPadre, idUbicacion));
+
+    // Eliminar la ubicación técnica
     const deleted = await db
       .delete(ubicacionTecnica)
       .where(eq(ubicacionTecnica.idUbicacion, idUbicacion))
@@ -189,32 +214,28 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
     };
   } catch (error) {
     console.error('Error deleting ubicacion tecnica:', error);
-    throw new Error('Error al eliminar la ubicación técnica');
+    throw new Error(
+      `Error al eliminar la ubicación técnica: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
   }
 };
 
-/**
- * Obtiene todas las ubicaciones técnicas.
- * Endpoint: GET /ubicaciones-tecnicas
- * Descripción: Devuelve un listado de todas las ubicaciones técnicas.
- */
 export const getUbicacionesTecnicas = async () => {
   try {
     const ubicaciones = await db.select().from(ubicacionTecnica);
     return ubicaciones;
   } catch (error) {
     console.error('Error fetching ubicaciones tecnicas:', error);
-    throw new Error('Error al obtener las ubicaciones técnicas');
+    throw new Error(
+      `Error al obtener las ubicaciones técnicas: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
   }
 };
 
-/**
- * Obtiene una ubicación técnica por su ID.
- * Endpoint: GET /ubicaciones-tecnicas/:id
- * Params:
- *   - idUbicacion: number (en la ruta)
- * Descripción: Devuelve la información de una ubicación técnica específica.
- */
 export const getUbicacionTecnicaById = async (idUbicacion: number) => {
   try {
     const ubicacion = await db
@@ -227,6 +248,41 @@ export const getUbicacionTecnicaById = async (idUbicacion: number) => {
     return ubicacion[0];
   } catch (error) {
     console.error('Error fetching ubicacion tecnica by id:', error);
-    throw new Error('Error al obtener la ubicación técnica');
+    throw new Error(
+      `Error al obtener la ubicación técnica: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
+  }
+};
+
+export const getUbicacionesDependientes = async (
+  idUbicacion: number
+): Promise<any[]> => {
+  try {
+    const dependientes: any[] = [];
+    const hijos = await db
+      .select({ idHijo: incluyen.idHijo })
+      .from(incluyen)
+      .where(eq(incluyen.idPadre, idUbicacion));
+    for (const hijo of hijos) {
+      const ubicacion = await db
+        .select()
+        .from(ubicacionTecnica)
+        .where(eq(ubicacionTecnica.idUbicacion, hijo.idHijo));
+      if (ubicacion.length) {
+        dependientes.push(ubicacion[0]);
+        const subdependientes = await getUbicacionesDependientes(hijo.idHijo);
+        dependientes.push(...subdependientes);
+      }
+    }
+    return dependientes;
+  } catch (error) {
+    console.error('Error fetching ubicaciones dependientes:', error);
+    throw new Error(
+      `Error al obtener las ubicaciones dependientes: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
   }
 };

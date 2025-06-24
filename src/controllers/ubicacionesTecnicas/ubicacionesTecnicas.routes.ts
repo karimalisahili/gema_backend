@@ -5,10 +5,12 @@ import {
   deleteUbicacionTecnicaHandler,
   getUbicacionesTecnicasHandler,
   getUbicacionTecnicaByIdHandler,
+  getUbicacionesDependientesHandler,
 } from './ubicacionesTecnicas.controller';
 
 const router = Router();
 
+router.get('/ramas/:id', getUbicacionesDependientesHandler);
 router.get('/', getUbicacionesTecnicasHandler);
 router.get('/:id', getUbicacionTecnicaByIdHandler);
 router.post('/', createUbicacionTecnicaHandler);

@@ -5,6 +5,7 @@ import {
   deleteUbicacionTecnica,
   getUbicacionesTecnicas,
   getUbicacionTecnicaById,
+  getUbicacionesDependientes,
 } from './ubicacionesTecnicas.service';
 
 export const createUbicacionTecnicaHandler = async (
@@ -87,6 +88,28 @@ export const getUbicacionTecnicaByIdHandler = async (
   } catch (error) {
     console.error('Error in getUbicacionTecnicaByIdHandler:', error);
     res.status(404).json({ error: 'Ubicación técnica no encontrada' });
+    return;
+  }
+};
+
+/**
+ * Handler para obtener todas las ubicaciones dependientes de una ubicación dada (sin importar si es padre físico o no).
+ * Endpoint: GET /ubicaciones-tecnicas/ramas/:id
+ */
+export const getUbicacionesDependientesHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const idUbicacion = Number(req.params.id);
+    const dependientes = await getUbicacionesDependientes(idUbicacion);
+    res.status(200).json({ data: dependientes });
+    return;
+  } catch (error) {
+    console.error('Error in getUbicacionesDependientesHandler:', error);
+    res
+      .status(500)
+      .json({ error: 'Error al obtener las ubicaciones dependientes' });
     return;
   }
 };
