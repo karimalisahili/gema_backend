@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { createTecnico } from "./tecnico.service";
+import { Request, Response, NextFunction } from 'express';
+import { createTecnico, getAllTecnicos } from './tecnico.service';
 
 export const createTecnicoHandler = async (
   req: Request,
@@ -12,10 +12,23 @@ export const createTecnicoHandler = async (
     });
     return;
   } catch (error) {
-    console.error("Error in createTecnicoHandler:", error);
+    console.error('Error in createTecnicoHandler:', error);
     res.status(500).json({
-      error: "Error al crear el tecnico",
+      error: 'Error al crear el tecnico',
     });
     return; // Ensure all code paths return a value
+  }
+};
+
+export const getAllTecnicosHandler = async (req: Request, res: Response) => {
+  try {
+    const usuarios = await getAllTecnicos();
+    res.status(201).json({
+      data: usuarios,
+    });
+    return;
+  } catch (error) {
+    console.error('Error en getAllTecnicosHandler', error);
+    return;
   }
 };
