@@ -6,11 +6,13 @@ import {
   getUbicacionesTecnicasHandler,
   getUbicacionTecnicaByIdHandler,
   getUbicacionesDependientesHandler,
+  getUbicacionesPorNivelHandler,
 } from './ubicacionesTecnicas.controller';
 
 const router = Router();
 
 router.get('/ramas/:id', getUbicacionesDependientesHandler);
+router.get('/nivel/:nivel', getUbicacionesPorNivelHandler); // GET /ubicaciones-tecnicas/nivel/:nivel
 router.get('/', getUbicacionesTecnicasHandler);
 router.get('/:id', getUbicacionTecnicaByIdHandler);
 router.post('/', createUbicacionTecnicaHandler);

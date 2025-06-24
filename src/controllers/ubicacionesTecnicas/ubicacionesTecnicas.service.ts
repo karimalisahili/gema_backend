@@ -9,14 +9,20 @@ import { eq, and, inArray } from 'drizzle-orm';
 
 /**
  * Crea una nueva ubicación técnica.
- * Endpoint: POST /ubicaciones-tecnicas
- * Body:
+ * @param params Objeto con los datos de la ubicación técnica a crear
  *   - descripcion: string (requerido)
  *   - abreviacion: string (requerido)
  *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
  *     - idPadre: ID del padre
  *     - esUbicacionFisica: true si este padre es la ubicación física principal
- * Descripción: Crea una ubicación técnica y la asocia a uno o varios padres.
+ * @returns Objeto con mensaje y la ubicación creada
+ * Endpoint: POST /ubicaciones-tecnicas
+ * Ejemplo de body para padres:
+ *   padres: [
+ *     { idPadre: 1, esUbicacionFisica: true },
+ *     { idPadre: 2 }
+ *   ]
+ * Si hay varios padres, solo uno debe tener esUbicacionFisica: true (el resto se asume false).
  */
 export const createUbicacionTecnica = async (
   params: CreateUbicacionesTecnicasParams
@@ -91,14 +97,14 @@ export const createUbicacionTecnica = async (
 
 /**
  * Actualiza una ubicación técnica existente.
- * Endpoint: PUT /ubicaciones-tecnicas/:id
- * Params:
- *   - idUbicacion: number (en la ruta)
- * Body:
+ * @param idUbicacion ID de la ubicación técnica a actualizar
+ * @param params Objeto con los datos a actualizar
  *   - descripcion: string (opcional)
  *   - abreviacion: string (opcional)
  *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
- * Descripción: Actualiza los datos de una ubicación técnica. Si se envía el campo padres, se actualizan las relaciones de padres.
+ * @returns Objeto con mensaje y la ubicación actualizada
+ * Endpoint: PUT /ubicaciones-tecnicas/:id
+ * Ejemplo de body para padres igual que en creación.
  */
 export const updateUbicacionTecnica = async (
   idUbicacion: number,
@@ -177,9 +183,9 @@ export const updateUbicacionTecnica = async (
 
 /**
  * Elimina una ubicación técnica por su ID y elimina recursivamente todos los hijos donde este sea padre (sin importar esUbicacionFisica).
+ * @param idUbicacion ID de la ubicación técnica a eliminar
+ * @returns Objeto con mensaje y la ubicación eliminada
  * Endpoint: DELETE /ubicaciones-tecnicas/:id
- * Params:
- *   - idUbicacion: number (en la ruta)
  * Descripción: Elimina la ubicación técnica y, en cascada, todos los hijos cuya relación apunte a este padre.
  */
 export const deleteUbicacionTecnica = async (idUbicacion: number) => {
@@ -222,6 +228,11 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
   }
 };
 
+/**
+ * Obtiene todas las ubicaciones técnicas.
+ * @returns Array de todas las ubicaciones técnicas
+ * Endpoint: GET /ubicaciones-tecnicas
+ */
 export const getUbicacionesTecnicas = async () => {
   try {
     const ubicaciones = await db.select().from(ubicacionTecnica);
@@ -236,6 +247,12 @@ export const getUbicacionesTecnicas = async () => {
   }
 };
 
+/**
+ * Obtiene una ubicación técnica por su ID.
+ * @param idUbicacion ID de la ubicación técnica
+ * @returns La ubicación técnica correspondiente
+ * Endpoint: GET /ubicaciones-tecnicas/:id
+ */
 export const getUbicacionTecnicaById = async (idUbicacion: number) => {
   try {
     const ubicacion = await db
@@ -256,23 +273,63 @@ export const getUbicacionTecnicaById = async (idUbicacion: number) => {
   }
 };
 
+/**
+ * Obtiene todas las ubicaciones técnicas de un nivel específico.
+ * @param nivel El nivel jerárquico a filtrar
+ * @returns Array de ubicaciones técnicas en ese nivel
+ * Endpoint: GET /ubicaciones-tecnicas/nivel/:nivel
+ */
+export const getUbicacionesPorNivel = async (nivel: number) => {
+  try {
+    const ubicaciones = await db.select().from(ubicacionTecnica);
+    return ubicaciones.filter(u => u.nivel === nivel);
+  } catch (error) {
+    console.error('Error fetching ubicaciones por nivel:', error);
+    throw new Error(
+      `Error al obtener las ubicaciones por nivel: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
+  }
+};
+
+/**
+ * Obtiene todas las ubicaciones dependientes (descendientes) de una ubicación dada.
+ * @param idUbicacion ID de la ubicación raíz
+ * @param nivel (opcional) nivel jerárquico a filtrar (query param opcional)
+ * @returns Array de ubicaciones dependientes (descendientes). Si se indica nivel, solo retorna las de ese nivel.
+ * Endpoint: GET /ubicaciones-tecnicas/ramas/:id?nivel=4
+ * Nota: El parámetro nivel es opcional y solo filtra si se provee.
+ */
 export const getUbicacionesDependientes = async (
-  idUbicacion: number
+  idUbicacion: number,
+  nivel?: number,
+  visitados: Set<number> = new Set()
 ): Promise<any[]> => {
   try {
-    const dependientes: any[] = [];
+    let dependientes: any[] = [];
     const hijos = await db
       .select({ idHijo: incluyen.idHijo })
       .from(incluyen)
       .where(eq(incluyen.idPadre, idUbicacion));
     for (const hijo of hijos) {
-      const ubicacion = await db
+      if (visitados.has(hijo.idHijo)) continue; // Evita ciclos y duplicados
+      visitados.add(hijo.idHijo);
+      const ubicacionArr = await db
         .select()
         .from(ubicacionTecnica)
         .where(eq(ubicacionTecnica.idUbicacion, hijo.idHijo));
-      if (ubicacion.length) {
-        dependientes.push(ubicacion[0]);
-        const subdependientes = await getUbicacionesDependientes(hijo.idHijo);
+      if (ubicacionArr.length) {
+        const ubicacion = ubicacionArr[0];
+        if (nivel === undefined || ubicacion.nivel === nivel) {
+          dependientes.push(ubicacion);
+        }
+        // Siempre sigue recorriendo para encontrar descendientes que sí cumplan el nivel
+        const subdependientes = await getUbicacionesDependientes(
+          hijo.idHijo,
+          nivel,
+          visitados
+        );
         dependientes.push(...subdependientes);
       }
     }
