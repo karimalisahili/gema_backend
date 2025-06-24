@@ -48,6 +48,49 @@ export const getAllWorkersInGroup = async (grupoDeTrabajoId: number) => {
   } catch (error) {}
 };
 
+export const getAllWorkersInAllGroups = async () => {
+  try {
+    const result = await db
+      .select({
+        grupoDeTrabajoId: trabajaEnGrupo.grupoDeTrabajoId,
+        tecnicoId: trabajaEnGrupo.tecnicoId,
+        usuario: usuarios,
+      })
+      .from(trabajaEnGrupo)
+      .leftJoin(usuarios, eq(trabajaEnGrupo.tecnicoId, usuarios.Id));
+
+    // Agrupar usuarios por grupoDeTrabajoId
+    const gruposMap: Record<
+      number,
+      { grupoDeTrabajoId: number; usuarios: any[] }
+    > = {};
+
+    result.forEach((item: any) => {
+      const grupoId = item.grupoDeTrabajoId;
+      if (!gruposMap[grupoId]) {
+        gruposMap[grupoId] = {
+          grupoDeTrabajoId: grupoId,
+          usuarios: [],
+        };
+      }
+      if (item.usuario) {
+        gruposMap[grupoId].usuarios.push(item.usuario);
+      }
+    });
+
+    return Object.values(gruposMap);
+  } catch (error) {
+    console.error(
+      'Error al obtener todos los trabajadores en todos los grupos:',
+      error
+    );
+    throw new Error(
+      'No se pudo obtener la información de los trabajadores en los grupos' +
+        error
+    );
+  }
+};
+
 export const deleteTrabajaEnGrupo = async (
   tecnicoId: number,
   grupoDeTrabajoId: number

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
   createTrabajaEnGrupo,
   deleteTrabajaEnGrupo,
+  getAllWorkersInAllGroups,
   getAllWorkersInGroup,
 } from './trabajaEnGrupo.service';
 import { trabajaEnGrupo } from '../../tables/trabajaEnGrupo';
@@ -40,6 +41,21 @@ export const getAllTrabajaEnGrupoHandler = async (
       data: trabajaEnGrupos,
     });
   } catch (error) {}
+};
+
+export const getAllTrabajaEnTodosLosGruposHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const data = await getAllWorkersInAllGroups();
+    res.status(200).json({ data });
+  } catch (error) {
+    console.error('Error in getAllTrabajaEnTodosLosGruposHandler:', error);
+    res.status(500).json({
+      error: 'Error al obtener todos los trabajadores en todos los grupos',
+    });
+  }
 };
 
 export const deleteTrabajaEnGrupoHandler = async (
