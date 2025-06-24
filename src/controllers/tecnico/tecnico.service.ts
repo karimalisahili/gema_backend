@@ -1,6 +1,7 @@
 import { db } from '../../db';
 import { usuarios } from '../../tables/usuarios';
 import { CreateTecnicoParams } from '../../types/types';
+import { eq } from 'drizzle-orm';
 
 export const createTecnico = async ({
   Nombre,
@@ -34,4 +35,17 @@ export const createTecnico = async ({
     console.error('Error creating tecnico:', error);
     throw new Error('Error al crear el tecnico');
   }
+};
+
+export const getAllTecnicos = async () => {
+  const tecnicos = await db
+    .select({
+      Id: usuarios.Id,
+      Nombre: usuarios.Nombre,
+      Correo: usuarios.Correo,
+    })
+    .from(usuarios)
+    .where(eq(usuarios.Tipo, 'TECNICO'));
+
+  return tecnicos;
 };
