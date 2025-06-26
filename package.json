@@ -7,8 +7,10 @@
     "build": "tsc",
     "start": "node dist/src/index.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
-    "pushdb": "npx drizzle-kit push",
-    "initDB": "ts-node src/initDB.ts"
+    "prepushdb": "ts-node src/scripts/prepushdb.ts",
+    "postpushdb": "ts-node src/scripts/postpushdb.ts",
+    "pushdb": "npm run prepushdb && npx drizzle-kit push && npm run postpushdb",
+    "initDB": "ts-node src/scripts/initDB.ts"
   },
   "keywords": [],
   "author": "",
