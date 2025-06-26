@@ -6,3 +6,12 @@ export type CreateUbicacionesTecnicasParams = {
 
 export type UpdateUbicacionesTecnicasParams =
   Partial<CreateUbicacionesTecnicasParams>;
+
+export type UbicacionNode = {
+  idUbicacion: number;
+  descripcion: string | null;
+  abreviacion: string | null;
+  codigo_Identificacion: string | null;
+  nivel: number | null;
+  children: UbicacionNode[];
+};

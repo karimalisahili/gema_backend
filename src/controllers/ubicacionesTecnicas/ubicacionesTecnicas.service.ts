@@ -4,6 +4,7 @@ import { incluyen } from '../../tables/incluyen';
 import {
   CreateUbicacionesTecnicasParams,
   UpdateUbicacionesTecnicasParams,
+  UbicacionNode,
 } from '../../types/ubicacionesTecnicas';
 import { eq, and, inArray } from 'drizzle-orm';
 
@@ -235,8 +236,35 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
  */
 export const getUbicacionesTecnicas = async () => {
   try {
+    // 1. Obtener todas las ubicaciones
     const ubicaciones = await db.select().from(ubicacionTecnica);
-    return ubicaciones;
+
+    // 2. Obtener todas las relaciones padre-hijo
+    const relaciones = await db.select().from(incluyen);
+
+    // 3. Crear un mapa de ubicaciones por id
+    const ubicacionMap = new Map<number, UbicacionNode>();
+    for (const u of ubicaciones) {
+      ubicacionMap.set(u.idUbicacion, { ...u, children: [] });
+    }
+
+    // 4. Construir el árbol
+    const hijosSet = new Set<number>();
+    for (const rel of relaciones) {
+      const padre = ubicacionMap.get(rel.idPadre);
+      const hijo = ubicacionMap.get(rel.idHijo);
+      if (padre && hijo) {
+        padre.children!.push(hijo);
+        hijosSet.add(hijo.idUbicacion);
+      }
+    }
+
+    // 5. Los nodos raíz son los que no son hijos de nadie
+    const roots = Array.from(ubicacionMap.values()).filter(
+      node => !hijosSet.has(node.idUbicacion)
+    );
+
+    return roots;
   } catch (error) {
     console.error('Error fetching ubicaciones tecnicas:', error);
     throw new Error(

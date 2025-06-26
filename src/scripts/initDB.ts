@@ -4,7 +4,8 @@ import { ubicacionTecnica } from '../tables/ubicacionTecnica';
 import { incluyen } from '../tables/incluyen';
 import dotenv from 'dotenv';
 import { hashPassword, comparePassword } from '../utils/password';
-
+import { createUbicacionTecnica } from '../controllers/ubicacionesTecnicas/ubicacionesTecnicas.service';
+import { CreateUbicacionesTecnicasParams } from '../types/ubicacionesTecnicas';
 dotenv.config();
 
 const initDB = async () => {
@@ -48,66 +49,52 @@ const initDB = async () => {
 
     console.log('Usuario coordinador agregado correctamente.');
 
-    // --- INSERCIÓN DE UBICACIONES TÉCNICAS EN JERARQUÍA ---
-    // 2 niveles mayores
-    const mayores = await db
-      .insert(ubicacionTecnica)
-      .values([
-        { descripcion: 'Mayor 1', abreviacion: 'M1' },
-        { descripcion: 'Mayor 2', abreviacion: 'M2' },
-      ])
-      .returning({ id: ubicacionTecnica.idUbicacion });
+    // ...existing code...
+    // Insertar M1 y M2
+    const mayores: { id: number; abreviacion: string }[] = [];
+    for (let i = 1; i <= 2; i++) {
+      const mayor = await createUbicacionTecnica({
+        descripcion: `Mayor ${i}`,
+        abreviacion: `M${i}`,
+      } as CreateUbicacionesTecnicasParams);
+      mayores.push({ id: mayor.ubicacion.idUbicacion, abreviacion: `M${i}` });
+    }
 
-    // 2 menores para cada mayor
-    const menores: { id: number; padre: number }[] = [];
-    for (const mayor of mayores) {
-      const hijos = await db
-        .insert(ubicacionTecnica)
-        .values([
-          {
-            descripcion: `Menor 1 de ${mayor.id}`,
-            abreviacion: `m1${mayor.id}`,
-          },
-          {
-            descripcion: `Menor 2 de ${mayor.id}`,
-            abreviacion: `m2${mayor.id}`,
-          },
-        ])
-        .returning({ id: ubicacionTecnica.idUbicacion });
-      // Relacionar con Incluyen
-      for (const hijo of hijos) {
-        await db.insert(incluyen).values({
-          idPadre: mayor.id,
-          idHijo: hijo.id,
-          esUbicacionFisica: true,
-        });
-        menores.push({ id: hijo.id, padre: mayor.id });
+    // M1: P1 y P2 (cada uno con Sala 1 y Sala 2)
+    const m1 = mayores[0];
+    const p1_m1 = await createUbicacionTecnica({
+      descripcion: 'P1',
+      abreviacion: 'P1',
+      padres: [{ idPadre: m1.id, esUbicacionFisica: true }],
+    } as CreateUbicacionesTecnicasParams);
+    const p2_m1 = await createUbicacionTecnica({
+      descripcion: 'P2',
+      abreviacion: 'P2',
+      padres: [{ idPadre: m1.id, esUbicacionFisica: true }],
+    } as CreateUbicacionesTecnicasParams);
+
+    for (const padre of [p1_m1, p2_m1]) {
+      for (let sala = 1; sala <= 2; sala++) {
+        await createUbicacionTecnica({
+          descripcion: `Sala ${sala}`,
+          abreviacion: `S${sala}`,
+          padres: [
+            { idPadre: padre.ubicacion.idUbicacion, esUbicacionFisica: true },
+          ],
+        } as CreateUbicacionesTecnicasParams);
       }
     }
 
-    // 2 niveles para cada menor (nietos)
-    for (const menor of menores) {
-      const nietos = await db
-        .insert(ubicacionTecnica)
-        .values([
-          {
-            descripcion: `Nieto 1 de ${menor.id}`,
-            abreviacion: `n1${menor.id}`,
-          },
-          {
-            descripcion: `Nieto 2 de ${menor.id}`,
-            abreviacion: `n2${menor.id}`,
-          },
-        ])
-        .returning({ id: ubicacionTecnica.idUbicacion });
-      for (const nieto of nietos) {
-        await db.insert(incluyen).values({
-          idPadre: menor.id,
-          idHijo: nieto.id,
-          esUbicacionFisica: true,
-        });
-      }
+    // M2: P1, P2, P3 (sin hijos)
+    const m2 = mayores[1];
+    for (let p = 1; p <= 3; p++) {
+      await createUbicacionTecnica({
+        descripcion: `P${p}`,
+        abreviacion: `P${p}`,
+        padres: [{ idPadre: m2.id, esUbicacionFisica: true }],
+      } as CreateUbicacionesTecnicasParams);
     }
+    // ...existing code...
   } catch (error) {
     console.error('Error al crear trigger y función:', error);
     console.error('Error al agregar usuario:', error);
