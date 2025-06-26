@@ -28,7 +28,10 @@ export class DB {
   static getDB(): NodePgDatabase {
     return DB.getInstance().db;
   }
+
+  static getPool(): Pool {
+    return DB.getInstance().pool;
+  }
 }
 
-const dbInstance: DB = DB.getInstance();
 export const db: NodePgDatabase = DB.getDB();
