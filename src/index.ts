@@ -3,8 +3,10 @@ import cors from "cors";
 import { db } from "./db";
 import routes from "./routes";
 
+
 const app = express();
 const port = process.env.PORT || 3000;
+
 
 // Configuración condicional de CORS
 if (process.env.NODE_ENV === "development") {
