@@ -17,6 +17,7 @@ export const incluyen = pgTable(
       })
       .notNull(),
     esUbicacionFisica: boolean('esUbicacionFisica').notNull().default(true),
+    hola: boolean('holas').notNull().default(false), // Campo adicional para pruebas
   },
   table => ({
     pk: [table.idPadre, table.idHijo],

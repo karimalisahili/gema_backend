@@ -1,6 +1,47 @@
-import { db } from '../db';
+import { db } from './db';
+import { usuarios } from './tables/usuarios';
+import dotenv from 'dotenv';
+import { hashPassword, comparePassword } from './utils/password';
 
-const triggerSQL = `
+dotenv.config();
+
+const initDB = async () => {
+  console.log('Starting database initialization...');
+
+  // Clean usuarios table
+  await db.delete(usuarios);
+
+  const plainPassword = '123456';
+  const nombre = 'Coordinador Principal';
+  const correo = 'coordinador@ucab.edu.ve';
+  const tipo = 'COORDINADOR';
+
+  try {
+    const contrasenaHash = await hashPassword(plainPassword);
+
+    // Comprobar que comparePassword funciona correctamente
+    const isMatch = await comparePassword(plainPassword, contrasenaHash);
+
+    await db.transaction(async tx => {
+      // Insertar usuario (sin contraseña)
+      const inserted = await tx
+        .insert(usuarios)
+        .values({
+          Nombre: nombre,
+          Correo: correo,
+          Tipo: tipo,
+          Contraseña: contrasenaHash,
+        })
+        .returning({ Id: usuarios.Id });
+
+      const usuarioId = inserted[0]?.Id;
+      if (!usuarioId) throw new Error('No se pudo obtener el Id del usuario');
+    });
+
+    console.log('Usuario coordinador agregado correctamente.');
+
+    // --- TRIGGER Y FUNCIÓN PARA ACTUALIZAR CODIGO_IDENTIFICACION EN CASCADA ---
+    const triggerSQL = `
 DROP FUNCTION IF EXISTS actualizar_codigos_identificacion_recursivo(integer);
 CREATE OR REPLACE FUNCTION actualizar_codigos_identificacion_recursivo(current_id integer) RETURNS void AS $$
 DECLARE
@@ -56,16 +97,14 @@ ON "UbicacionTecnica"
 FOR EACH ROW
 EXECUTE FUNCTION trigger_update_codigo_identificacion_func();
 `;
-
-async function main() {
-  try {
     await db.execute(triggerSQL);
     console.log(
       'Trigger y función para actualizar codigo_identificacion creados.'
     );
   } catch (error) {
     console.error('Error al crear trigger y función:', error);
+    console.error('Error al agregar usuario:', error);
   }
-}
+};
 
-main();
+initDB();
