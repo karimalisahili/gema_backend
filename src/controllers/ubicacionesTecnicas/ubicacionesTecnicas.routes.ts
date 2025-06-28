@@ -7,6 +7,7 @@ import {
   getUbicacionTecnicaByIdHandler,
   getUbicacionesDependientesHandler,
   getUbicacionesPorNivelHandler,
+  getPadresByIdHijoHandler,
 } from './ubicacionesTecnicas.controller';
 
 const router = Router();
@@ -18,5 +19,6 @@ router.get('/:id', getUbicacionTecnicaByIdHandler);
 router.post('/', createUbicacionTecnicaHandler);
 router.put('/:id', updateUbicacionTecnicaHandler);
 router.delete('/:id', deleteUbicacionTecnicaHandler);
+router.get('/padres/:idHijo', getPadresByIdHijoHandler);
 
 export default router;

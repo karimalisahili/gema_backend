@@ -230,8 +230,8 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
 };
 
 /**
- * Obtiene todas las ubicaciones técnicas.
- * @returns Array de todas las ubicaciones técnicas
+ * Obtiene todas las ubicaciones técnicas, solo siguiendo relaciones donde esUbicacionFisica es true.
+ * @returns Array de todas las ubicaciones técnicas (solo físicas)
  * Endpoint: GET /ubicaciones-tecnicas
  */
 export const getUbicacionesTecnicas = async () => {
@@ -239,8 +239,11 @@ export const getUbicacionesTecnicas = async () => {
     // 1. Obtener todas las ubicaciones
     const ubicaciones = await db.select().from(ubicacionTecnica);
 
-    // 2. Obtener todas las relaciones padre-hijo
-    const relaciones = await db.select().from(incluyen);
+    // 2. Obtener solo las relaciones padre-hijo donde esUbicacionFisica es true
+    const relaciones = await db
+      .select()
+      .from(incluyen)
+      .where(eq(incluyen.esUbicacionFisica, true));
 
     // 3. Crear un mapa de ubicaciones por id
     const ubicacionMap = new Map<number, UbicacionNode>();
@@ -248,7 +251,7 @@ export const getUbicacionesTecnicas = async () => {
       ubicacionMap.set(u.idUbicacion, { ...u, children: [] });
     }
 
-    // 4. Construir el árbol
+    // 4. Construir el árbol solo con relaciones físicas
     const hijosSet = new Set<number>();
     for (const rel of relaciones) {
       const padre = ubicacionMap.get(rel.idPadre);
@@ -259,7 +262,7 @@ export const getUbicacionesTecnicas = async () => {
       }
     }
 
-    // 5. Los nodos raíz son los que no son hijos de nadie
+    // 5. Los nodos raíz son los que no son hijos de nadie (por relaciones físicas)
     const roots = Array.from(ubicacionMap.values()).filter(
       node => !hijosSet.has(node.idUbicacion)
     );
@@ -366,6 +369,62 @@ export const getUbicacionesDependientes = async (
     console.error('Error fetching ubicaciones dependientes:', error);
     throw new Error(
       `Error al obtener las ubicaciones dependientes: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
+  }
+};
+
+/**
+ * Obtiene la(s) cadena(s) jerárquica(s) de padres hasta el hijo dado, en estructura padre-hijo.
+ * @param idHijo ID de la ubicación técnica hija
+ * @returns Array de árboles desde la(s) raíz(ces) hasta el hijo, estructura padre→hijo
+ * Ejemplo de retorno:
+ * [
+ *   { ...padre1, child: { ...padre2, child: { ...hijo } } },
+ *   { ...padreX, child: { ...hijo } }
+ * ]
+ */
+export const getPadresByIdHijo = async (
+  idHijo: number
+): Promise<UbicacionNode[]> => {
+  try {
+    // Buscar todos los padres directos de este hijo, incluyendo esUbicacionFisica
+    const padresRel = await db
+      .select({
+        idPadre: incluyen.idPadre,
+        esUbicacionFisica: incluyen.esUbicacionFisica,
+      })
+      .from(incluyen)
+      .where(eq(incluyen.idHijo, idHijo));
+
+    if (!padresRel.length) {
+      return [];
+    }
+
+    const padres: UbicacionNode[] = [];
+    for (const rel of padresRel) {
+      const padreArr = await db
+        .select()
+        .from(ubicacionTecnica)
+        .where(eq(ubicacionTecnica.idUbicacion, rel.idPadre));
+      if (padreArr.length) {
+        const padre = padreArr[0];
+        padres.push({
+          idUbicacion: padre.idUbicacion,
+          descripcion: padre.descripcion,
+          abreviacion: padre.abreviacion,
+          codigo_Identificacion: padre.codigo_Identificacion,
+          nivel: padre.nivel,
+          esUbicacionFisica: rel.esUbicacionFisica,
+        });
+      }
+    }
+    return padres;
+  } catch (error) {
+    console.error('Error fetching padres by idHijo:', error);
+    throw new Error(
+      `Error al obtener los padres directos: ${
         error instanceof Error ? error.message : error
       }`
     );

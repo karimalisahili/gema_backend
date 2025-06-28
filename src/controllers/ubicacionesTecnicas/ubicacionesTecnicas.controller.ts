@@ -7,6 +7,7 @@ import {
   getUbicacionTecnicaById,
   getUbicacionesDependientes,
   getUbicacionesPorNivel,
+  getPadresByIdHijo,
 } from './ubicacionesTecnicas.service';
 
 export const createUbicacionTecnicaHandler = async (
@@ -185,6 +186,26 @@ export const getUbicacionesPorNivelHandler = async (
     res
       .status(500)
       .json({ error: 'Error al obtener las ubicaciones por nivel' });
+    return;
+  }
+};
+
+/**
+ * Handler para obtener todos los padres jerárquicos de un hijo.
+ * Endpoint: GET /ubicaciones-tecnicas/padres/:idHijo
+ */
+export const getPadresByIdHijoHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const idHijo = Number(req.params.idHijo);
+    const padres = await getPadresByIdHijo(idHijo);
+    res.status(200).json({ data: padres });
+    return;
+  } catch (error) {
+    console.error('Error in getPadresByIdHijoHandler:', error);
+    res.status(500).json({ error: 'Error al obtener los padres jerárquicos' });
     return;
   }
 };
