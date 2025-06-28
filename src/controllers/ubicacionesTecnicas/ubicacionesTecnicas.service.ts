@@ -374,3 +374,59 @@ export const getUbicacionesDependientes = async (
     );
   }
 };
+
+/**
+ * Obtiene la(s) cadena(s) jerárquica(s) de padres hasta el hijo dado, en estructura padre-hijo.
+ * @param idHijo ID de la ubicación técnica hija
+ * @returns Array de árboles desde la(s) raíz(ces) hasta el hijo, estructura padre→hijo
+ * Ejemplo de retorno:
+ * [
+ *   { ...padre1, child: { ...padre2, child: { ...hijo } } },
+ *   { ...padreX, child: { ...hijo } }
+ * ]
+ */
+export const getPadresByIdHijo = async (
+  idHijo: number
+): Promise<UbicacionNode[]> => {
+  try {
+    // Buscar todos los padres directos de este hijo, incluyendo esUbicacionFisica
+    const padresRel = await db
+      .select({
+        idPadre: incluyen.idPadre,
+        esUbicacionFisica: incluyen.esUbicacionFisica,
+      })
+      .from(incluyen)
+      .where(eq(incluyen.idHijo, idHijo));
+
+    if (!padresRel.length) {
+      return [];
+    }
+
+    const padres: UbicacionNode[] = [];
+    for (const rel of padresRel) {
+      const padreArr = await db
+        .select()
+        .from(ubicacionTecnica)
+        .where(eq(ubicacionTecnica.idUbicacion, rel.idPadre));
+      if (padreArr.length) {
+        const padre = padreArr[0];
+        padres.push({
+          idUbicacion: padre.idUbicacion,
+          descripcion: padre.descripcion,
+          abreviacion: padre.abreviacion,
+          codigo_Identificacion: padre.codigo_Identificacion,
+          nivel: padre.nivel,
+          esUbicacionFisica: rel.esUbicacionFisica,
+        });
+      }
+    }
+    return padres;
+  } catch (error) {
+    console.error('Error fetching padres by idHijo:', error);
+    throw new Error(
+      `Error al obtener los padres directos: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
+  }
+};
