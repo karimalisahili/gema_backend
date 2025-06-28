@@ -230,8 +230,8 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
 };
 
 /**
- * Obtiene todas las ubicaciones técnicas.
- * @returns Array de todas las ubicaciones técnicas
+ * Obtiene todas las ubicaciones técnicas, solo siguiendo relaciones donde esUbicacionFisica es true.
+ * @returns Array de todas las ubicaciones técnicas (solo físicas)
  * Endpoint: GET /ubicaciones-tecnicas
  */
 export const getUbicacionesTecnicas = async () => {
@@ -239,8 +239,11 @@ export const getUbicacionesTecnicas = async () => {
     // 1. Obtener todas las ubicaciones
     const ubicaciones = await db.select().from(ubicacionTecnica);
 
-    // 2. Obtener todas las relaciones padre-hijo
-    const relaciones = await db.select().from(incluyen);
+    // 2. Obtener solo las relaciones padre-hijo donde esUbicacionFisica es true
+    const relaciones = await db
+      .select()
+      .from(incluyen)
+      .where(eq(incluyen.esUbicacionFisica, true));
 
     // 3. Crear un mapa de ubicaciones por id
     const ubicacionMap = new Map<number, UbicacionNode>();
@@ -248,7 +251,7 @@ export const getUbicacionesTecnicas = async () => {
       ubicacionMap.set(u.idUbicacion, { ...u, children: [] });
     }
 
-    // 4. Construir el árbol
+    // 4. Construir el árbol solo con relaciones físicas
     const hijosSet = new Set<number>();
     for (const rel of relaciones) {
       const padre = ubicacionMap.get(rel.idPadre);
@@ -259,7 +262,7 @@ export const getUbicacionesTecnicas = async () => {
       }
     }
 
-    // 5. Los nodos raíz son los que no son hijos de nadie
+    // 5. Los nodos raíz son los que no son hijos de nadie (por relaciones físicas)
     const roots = Array.from(ubicacionMap.values()).filter(
       node => !hijosSet.has(node.idUbicacion)
     );
