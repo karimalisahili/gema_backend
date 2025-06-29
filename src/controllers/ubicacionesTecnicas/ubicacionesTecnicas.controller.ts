@@ -7,6 +7,7 @@ import {
   getUbicacionTecnicaById,
   getUbicacionesDependientes,
   getUbicacionesPorNivel,
+  getPadresByIdHijo,
 } from './ubicacionesTecnicas.service';
 import { exportUbicacionesToExcel } from '../../scripts/exportToExcel';
 
@@ -215,6 +216,22 @@ export const exportUbicacionesToExcelHandler = async (
   } catch (error) {
     console.error('Error in exportUbicacionesToExcelHandler:', error);
     res.status(500).json({ error: 'Error al exportar a Excel' });
+    return;
+  }
+};
+
+export const getPadresByIdHijoHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const idHijo = Number(req.params.idHijo);
+    const padres = await getPadresByIdHijo(idHijo);
+    res.status(200).json({ data: padres });
+    return;
+  } catch (error) {
+    console.error('Error in getPadresByIdHijoHandler:', error);
+    res.status(500).json({ error: 'Error al obtener los padres jerárquicos' });
     return;
   }
 };

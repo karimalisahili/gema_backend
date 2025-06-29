@@ -13,5 +13,6 @@ export type UbicacionNode = {
   abreviacion: string | null;
   codigo_Identificacion: string | null;
   nivel: number | null;
-  children: UbicacionNode[];
+  children?: UbicacionNode[];
+  esUbicacionFisica?: boolean; // Opcional, indica si la relación con el hijo es física
 };
