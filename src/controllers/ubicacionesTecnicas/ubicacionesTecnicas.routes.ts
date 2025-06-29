@@ -7,8 +7,8 @@ import {
   getUbicacionTecnicaByIdHandler,
   getUbicacionesDependientesHandler,
   getUbicacionesPorNivelHandler,
-  exportUbicacionesToExcelHandler,
   getPadresByIdHijoHandler,
+  exportUbicacionesToExcelHandler,
 } from './ubicacionesTecnicas.controller';
 
 const router = Router();
