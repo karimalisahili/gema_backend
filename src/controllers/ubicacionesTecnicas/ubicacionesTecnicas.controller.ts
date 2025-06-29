@@ -8,6 +8,7 @@ import {
   getUbicacionesDependientes,
   getUbicacionesPorNivel,
 } from './ubicacionesTecnicas.service';
+import { exportUbicacionesToExcel } from '../../scripts/exportToExcel';
 
 export const createUbicacionTecnicaHandler = async (
   req: Request,
@@ -185,6 +186,35 @@ export const getUbicacionesPorNivelHandler = async (
     res
       .status(500)
       .json({ error: 'Error al obtener las ubicaciones por nivel' });
+    return;
+  }
+};
+
+/**
+ * Exporta todas las ubicaciones técnicas a un archivo Excel.
+ * Método: GET
+ * Endpoint: /ubicaciones-tecnicas/export/excel
+ * Descripción: Genera un archivo Excel con todas las ubicaciones técnicas en un formato jerárquico.
+ */
+export const exportUbicacionesToExcelHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const buffer = await exportUbicacionesToExcel();
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=ubicaciones_tecnicas.xlsx'
+    );
+    res.send(buffer);
+    return;
+  } catch (error) {
+    console.error('Error in exportUbicacionesToExcelHandler:', error);
+    res.status(500).json({ error: 'Error al exportar a Excel' });
     return;
   }
 };

@@ -12,5 +12,5 @@ router.use('/tecnicos', authenticate, tecnicoRoutes);
 router.use('/grupos', authenticate, grupoDeTrabajoRoutes);
 router.use('/trabajaEnGrupo', authenticate, trabajaEnGrupoRoutes);
 router.use('/login', authRoutes);
-router.use('/ubicaciones-tecnicas', authenticate, ubicacionesTecnicasRoutes);
+router.use('/ubicaciones-tecnicas', ubicacionesTecnicasRoutes);
 export default router;

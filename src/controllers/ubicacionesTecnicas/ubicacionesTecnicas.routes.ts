@@ -7,10 +7,12 @@ import {
   getUbicacionTecnicaByIdHandler,
   getUbicacionesDependientesHandler,
   getUbicacionesPorNivelHandler,
+  exportUbicacionesToExcelHandler,
 } from './ubicacionesTecnicas.controller';
 
 const router = Router();
 
+router.get('/export/excel', exportUbicacionesToExcelHandler);
 router.get('/ramas/:id', getUbicacionesDependientesHandler);
 router.get('/nivel/:nivel', getUbicacionesPorNivelHandler); // GET /ubicaciones-tecnicas/nivel/:nivel
 router.get('/', getUbicacionesTecnicasHandler);
