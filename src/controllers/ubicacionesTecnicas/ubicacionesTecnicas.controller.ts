@@ -11,6 +11,25 @@ import {
 } from './ubicacionesTecnicas.service';
 import { exportUbicacionesToExcel } from '../../scripts/exportToExcel';
 
+/**
+ * Crea una nueva ubicación técnica.
+ * Método: POST
+ * Endpoint: /ubicaciones-tecnicas
+ * Body:
+ *   - descripcion: string (requerido)
+ *   - abreviacion: string (requerido)
+ *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
+ *     - idPadre: ID del padre
+ *     - esUbicacionFisica: true si este padre es la ubicación física principal
+ *     - estaHabilitado: boolean (opcional, por defecto true)
+ * Descripción: Crea una ubicación técnica y la asocia a uno o varios padres.
+ * Ejemplo de body para padres:
+ *   padres: [
+ *     { idPadre: 1, esUbicacionFisica: true },
+ *     { idPadre: 2 }
+ *   ]
+ * Si hay varios padres, solo uno debe tener esUbicacionFisica: true (el resto se asume false).
+ */
 export const createUbicacionTecnicaHandler = async (
   req: Request,
   res: Response
@@ -31,22 +50,18 @@ export const createUbicacionTecnicaHandler = async (
 };
 
 /**
- * Crea una nueva ubicación técnica.
- * Método: POST
- * Endpoint: /ubicaciones-tecnicas
+ * Actualiza una ubicación técnica existente.
+ * Método: PUT
+ * Endpoint: /ubicaciones-tecnicas/:id
+ * Params:
+ *   - id: number (en la ruta, requerido)
  * Body:
- *   - descripcion: string (requerido)
- *   - abreviacion: string (requerido)
+ *   - descripcion: string (opcional)
+ *   - abreviacion: string (opcional)
  *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
- *     - idPadre: ID del padre
- *     - esUbicacionFisica: true si este padre es la ubicación física principal
- * Descripción: Crea una ubicación técnica y la asocia a uno o varios padres.
- * Ejemplo de body para padres:
- *   padres: [
- *     { idPadre: 1, esUbicacionFisica: true },
- *     { idPadre: 2 }
- *   ]
- * Si hay varios padres, solo uno debe tener esUbicacionFisica: true (el resto se asume false).
+ *   - estaHabilitado: boolean (opcional)
+ * Descripción: Actualiza los datos de una ubicación técnica. Si se envía el campo padres, se actualizan las relaciones de padres y se recalculan nivel y código de identificación.
+ * Ejemplo de body para padres igual que en creación.
  */
 export const updateUbicacionTecnicaHandler = async (
   req: Request,
@@ -65,17 +80,12 @@ export const updateUbicacionTecnicaHandler = async (
 };
 
 /**
- * Actualiza una ubicación técnica existente.
- * Método: PUT
+ * Deshabilita una ubicación técnica y todos sus descendientes recursivamente (soft delete).
+ * Método: DELETE
  * Endpoint: /ubicaciones-tecnicas/:id
  * Params:
  *   - id: number (en la ruta, requerido)
- * Body:
- *   - descripcion: string (opcional)
- *   - abreviacion: string (opcional)
- *   - padres: Array<{ idPadre: number; esUbicacionFisica?: boolean }> (opcional)
- * Descripción: Actualiza los datos de una ubicación técnica. Si se envía el campo padres, se actualizan las relaciones de padres y se recalculan nivel y código de identificación.
- * Ejemplo de body para padres igual que en creación.
+ * Descripción: Deshabilita la ubicación técnica y, en cascada, todos los hijos cuya relación apunte a este padre, sin importar si es física o virtual. No se elimina físicamente, solo se pone estaHabilitado=false.
  */
 export const deleteUbicacionTecnicaHandler = async (
   req: Request,
@@ -94,12 +104,10 @@ export const deleteUbicacionTecnicaHandler = async (
 };
 
 /**
- * Elimina una ubicación técnica y todos sus descendientes recursivamente.
- * Método: DELETE
- * Endpoint: /ubicaciones-tecnicas/:id
- * Params:
- *   - id: number (en la ruta, requerido)
- * Descripción: Elimina la ubicación técnica y, en cascada, todos los hijos cuya relación apunte a este padre, sin importar si es física o virtual.
+ * Obtiene todas las ubicaciones técnicas habilitadas.
+ * Método: GET
+ * Endpoint: /ubicaciones-tecnicas
+ * Descripción: Retorna todas las ubicaciones técnicas registradas en el sistema que están habilitadas.
  */
 export const getUbicacionesTecnicasHandler = async (
   req: Request,
@@ -119,10 +127,12 @@ export const getUbicacionesTecnicasHandler = async (
 };
 
 /**
- * Obtiene todas las ubicaciones técnicas.
+ * Obtiene una ubicación técnica por su ID.
  * Método: GET
- * Endpoint: /ubicaciones-tecnicas
- * Descripción: Retorna todas las ubicaciones técnicas registradas en el sistema.
+ * Endpoint: /ubicaciones-tecnicas/:id
+ * Params:
+ *   - id: number (en la ruta, requerido)
+ * Descripción: Retorna la ubicación técnica correspondiente al ID, si está habilitada.
  */
 export const getUbicacionTecnicaByIdHandler = async (
   req: Request,
@@ -141,8 +151,12 @@ export const getUbicacionTecnicaByIdHandler = async (
 };
 
 /**
- * Handler para obtener todas las ubicaciones dependientes de una ubicación dada (sin importar si es padre físico o no).
- * Endpoint: GET /ubicaciones-tecnicas/ramas/:id
+ * Obtiene todas las ubicaciones dependientes (descendientes) de una ubicación dada.
+ * Método: GET
+ * Endpoint: /ubicaciones-tecnicas/ramas/:id
+ * Query params:
+ *   - nivel: number (opcional)
+ * Descripción: Retorna todas las ubicaciones dependientes (descendientes) de la ubicación dada. Si se indica nivel, solo retorna las de ese nivel.
  */
 export const getUbicacionesDependientesHandler = async (
   req: Request,
@@ -171,7 +185,7 @@ export const getUbicacionesDependientesHandler = async (
  * Endpoint: /ubicaciones-tecnicas/nivel/:nivel
  * Params:
  *   - nivel: number (en la ruta, requerido)
- * Descripción: Retorna todas las ubicaciones técnicas del nivel solicitado.
+ * Descripción: Retorna todas las ubicaciones técnicas del nivel solicitado que están habilitadas.
  */
 export const getUbicacionesPorNivelHandler = async (
   req: Request,
@@ -220,6 +234,14 @@ export const exportUbicacionesToExcelHandler = async (
   }
 };
 
+/**
+ * Obtiene todos los padres jerárquicos de un hijo.
+ * Método: GET
+ * Endpoint: /ubicaciones-tecnicas/padres/:idHijo
+ * Params:
+ *   - idHijo: number (en la ruta, requerido)
+ * Descripción: Retorna todos los padres jerárquicos de la ubicación técnica indicada.
+ */
 export const getPadresByIdHijoHandler = async (
   req: Request,
   res: Response
