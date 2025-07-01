@@ -43,7 +43,9 @@ export const createUbicacionTecnicaHandler = async (
   } catch (error) {
     console.error('Error in createUbicacionTecnicaHandler:', error);
     res.status(500).json({
-      error: 'Error al crear la ubicación técnica',
+      error: `Error al crear la ubicación técnica: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
     });
     return;
   }
@@ -74,7 +76,11 @@ export const updateUbicacionTecnicaHandler = async (
     return;
   } catch (error) {
     console.error('Error in updateUbicacionTecnicaHandler:', error);
-    res.status(500).json({ error: 'Error al actualizar la ubicación técnica' });
+    res.status(500).json({
+      error: `Error al actualizar la ubicación técnica: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -98,7 +104,11 @@ export const deleteUbicacionTecnicaHandler = async (
     return;
   } catch (error) {
     console.error('Error in deleteUbicacionTecnicaHandler:', error);
-    res.status(500).json({ error: 'Error al eliminar la ubicación técnica' });
+    res.status(500).json({
+      error: `Error al deshabilitar la ubicación técnica: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -119,9 +129,11 @@ export const getUbicacionesTecnicasHandler = async (
     return;
   } catch (error) {
     console.error('Error in getUbicacionesTecnicasHandler:', error);
-    res
-      .status(500)
-      .json({ error: 'Error al obtener las ubicaciones técnicas' });
+    res.status(500).json({
+      error: `Error al obtener las ubicaciones técnicas: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -145,7 +157,11 @@ export const getUbicacionTecnicaByIdHandler = async (
     return;
   } catch (error) {
     console.error('Error in getUbicacionTecnicaByIdHandler:', error);
-    res.status(404).json({ error: 'Ubicación técnica no encontrada' });
+    res.status(404).json({
+      error: `Ubicación técnica no encontrada: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -172,9 +188,11 @@ export const getUbicacionesDependientesHandler = async (
     return;
   } catch (error) {
     console.error('Error in getUbicacionesDependientesHandler:', error);
-    res
-      .status(500)
-      .json({ error: 'Error al obtener las ubicaciones dependientes' });
+    res.status(500).json({
+      error: `Error al obtener las ubicaciones dependientes: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -198,9 +216,11 @@ export const getUbicacionesPorNivelHandler = async (
     return;
   } catch (error) {
     console.error('Error en getUbicacionesPorNivelHandler:', error);
-    res
-      .status(500)
-      .json({ error: 'Error al obtener las ubicaciones por nivel' });
+    res.status(500).json({
+      error: `Error al obtener las ubicaciones por nivel: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -229,7 +249,11 @@ export const exportUbicacionesToExcelHandler = async (
     return;
   } catch (error) {
     console.error('Error in exportUbicacionesToExcelHandler:', error);
-    res.status(500).json({ error: 'Error al exportar a Excel' });
+    res.status(500).json({
+      error: `Error al exportar a Excel: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
@@ -253,7 +277,11 @@ export const getPadresByIdHijoHandler = async (
     return;
   } catch (error) {
     console.error('Error in getPadresByIdHijoHandler:', error);
-    res.status(500).json({ error: 'Error al obtener los padres jerárquicos' });
+    res.status(500).json({
+      error: `Error al obtener los padres jerárquicos: ${
+        error instanceof Error ? error.message : 'Error desconocido'
+      }`,
+    });
     return;
   }
 };
