@@ -1,4 +1,10 @@
-import { pgTable, serial, varchar, integer } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  varchar,
+  integer,
+  boolean as pgBoolean,
+} from 'drizzle-orm/pg-core';
 
 export const ubicacionTecnica = pgTable('UbicacionTecnica', {
   idUbicacion: serial('id').primaryKey(),
@@ -8,5 +14,6 @@ export const ubicacionTecnica = pgTable('UbicacionTecnica', {
     length: 50,
   }).unique(),
   nivel: integer('nivel'),
+  estaHabilitado: pgBoolean('esta_habilitado').default(true),
   // padreId removed, now handled by Incluyen table
 });

@@ -197,7 +197,7 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
       .from(incluyen)
       .where(eq(incluyen.idPadre, idUbicacion));
 
-    // Eliminar recursivamente los hijos
+    // Deshabilitar recursivamente los hijos
     for (const hijo of hijos) {
       await deleteUbicacionTecnica(hijo.idHijo);
     }
@@ -207,22 +207,23 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
     // Eliminar relaciones en Incluyen donde este es padre
     await db.delete(incluyen).where(eq(incluyen.idPadre, idUbicacion));
 
-    // Eliminar la ubicación técnica
-    const deleted = await db
-      .delete(ubicacionTecnica)
+    // En vez de eliminar, deshabilitar la ubicación técnica
+    const updated = await db
+      .update(ubicacionTecnica)
+      .set({ estaHabilitado: false })
       .where(eq(ubicacionTecnica.idUbicacion, idUbicacion))
       .returning();
-    if (!deleted.length) {
+    if (!updated.length) {
       throw new Error('Ubicación técnica no encontrada');
     }
     return {
-      message: 'Ubicación técnica eliminada correctamente',
-      ubicacion: deleted[0],
+      message: 'Ubicación técnica deshabilitada correctamente',
+      ubicacion: updated[0],
     };
   } catch (error) {
-    console.error('Error deleting ubicacion tecnica:', error);
+    console.error('Error disabling ubicacion tecnica:', error);
     throw new Error(
-      `Error al eliminar la ubicación técnica: ${
+      `Error al deshabilitar la ubicación técnica: ${
         error instanceof Error ? error.message : error
       }`
     );
@@ -236,8 +237,11 @@ export const deleteUbicacionTecnica = async (idUbicacion: number) => {
  */
 export const getUbicacionesTecnicas = async () => {
   try {
-    // 1. Obtener todas las ubicaciones
-    const ubicaciones = await db.select().from(ubicacionTecnica);
+    // 1. Obtener todas las ubicaciones habilitadas
+    const ubicaciones = await db
+      .select()
+      .from(ubicacionTecnica)
+      .where(eq(ubicacionTecnica.estaHabilitado, true));
 
     // 2. Obtener todas las relaciones padre-hijo
     const relaciones = await db.select().from(incluyen);
@@ -286,7 +290,12 @@ export const getUbicacionTecnicaById = async (idUbicacion: number) => {
     const ubicacion = await db
       .select()
       .from(ubicacionTecnica)
-      .where(eq(ubicacionTecnica.idUbicacion, idUbicacion));
+      .where(
+        and(
+          eq(ubicacionTecnica.idUbicacion, idUbicacion),
+          eq(ubicacionTecnica.estaHabilitado, true)
+        )
+      );
     if (!ubicacion.length) {
       throw new Error('Ubicación técnica no encontrada');
     }
@@ -309,7 +318,10 @@ export const getUbicacionTecnicaById = async (idUbicacion: number) => {
  */
 export const getUbicacionesPorNivel = async (nivel: number) => {
   try {
-    const ubicaciones = await db.select().from(ubicacionTecnica);
+    const ubicaciones = await db
+      .select()
+      .from(ubicacionTecnica)
+      .where(eq(ubicacionTecnica.estaHabilitado, true));
     return ubicaciones.filter(u => u.nivel === nivel);
   } catch (error) {
     console.error('Error fetching ubicaciones por nivel:', error);
@@ -346,7 +358,12 @@ export const getUbicacionesDependientes = async (
       const ubicacionArr = await db
         .select()
         .from(ubicacionTecnica)
-        .where(eq(ubicacionTecnica.idUbicacion, hijo.idHijo));
+        .where(
+          and(
+            eq(ubicacionTecnica.idUbicacion, hijo.idHijo),
+            eq(ubicacionTecnica.estaHabilitado, true)
+          )
+        );
       if (ubicacionArr.length) {
         const ubicacion = ubicacionArr[0];
         if (nivel === undefined || ubicacion.nivel === nivel) {
@@ -412,6 +429,7 @@ export const getPadresByIdHijo = async (
           descripcion: padre.descripcion,
           abreviacion: padre.abreviacion,
           codigo_Identificacion: padre.codigo_Identificacion,
+          estaHabilitado: padre.estaHabilitado,
           nivel: padre.nivel,
           esUbicacionFisica: rel.esUbicacionFisica,
         });
