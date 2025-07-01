@@ -3,17 +3,19 @@ import {
   serial,
   varchar,
   integer,
-  boolean as pgBoolean,
+  boolean,
 } from 'drizzle-orm/pg-core';
 
 export const ubicacionTecnica = pgTable('UbicacionTecnica', {
   idUbicacion: serial('id').primaryKey(),
-  descripcion: varchar('descripcion', { length: 100 }),
-  abreviacion: varchar('abreviacion', { length: 5 }),
+  descripcion: varchar('descripcion', { length: 100 }).notNull(),
+  abreviacion: varchar('abreviacion', { length: 5 }).notNull(),
   codigo_Identificacion: varchar('codigo_identificacion', {
     length: 50,
-  }).unique(),
-  nivel: integer('nivel'),
-  estaHabilitado: pgBoolean('esta_habilitado').default(true),
+  })
+    .unique()
+    .notNull(),
+  nivel: integer('nivel').notNull(),
+  estaHabilitado: boolean('esta_habilitado').default(true).notNull(),
   // padreId removed, now handled by Incluyen table
 });
